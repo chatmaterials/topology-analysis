@@ -26,7 +26,19 @@ def analyze_case(root: Path) -> dict[str, object]:
     invariant_penalty = 0.0 if invariant["topology_class"] != "trivial-like" else 2.0
     wilson_penalty = 0.0 if wilson["nontrivial_hint"] else 1.0
     surface_penalty = max(0.0, 0.3 - float(surface["near_fermi_weight"]))
-    score = invariant_penalty + wilson_penalty + surface_penalty
+    evidence_score = float(invariant["evidence_score"]) + float(wilson["support_score"]) + float(surface["confidence_score"])
+    consistency_penalty = 0.0
+    if invariant["topology_class"] == "trivial-like" and (wilson["nontrivial_hint"] or surface["surface_state_hint"]):
+        consistency_penalty = 0.5
+    elif invariant["topology_class"] != "trivial-like" and not (wilson["nontrivial_hint"] or surface["surface_state_hint"]):
+        consistency_penalty = 0.5
+    score = invariant_penalty + wilson_penalty + surface_penalty + consistency_penalty
+    if evidence_score >= 2.5 and consistency_penalty == 0.0:
+        confidence_class = "strong-evidence"
+    elif evidence_score >= 1.0:
+        confidence_class = "moderate-evidence"
+    else:
+        confidence_class = "weak-evidence"
     return {
         "case": root.name,
         "path": str(root),
@@ -35,7 +47,11 @@ def analyze_case(root: Path) -> dict[str, object]:
         "winding_span": wilson["winding_span"],
         "crossing_count": wilson["crossing_count"],
         "near_fermi_weight": surface["near_fermi_weight"],
+        "near_fermi_fraction": surface["near_fermi_fraction"],
         "surface_state_hint": surface["surface_state_hint"],
+        "evidence_score": evidence_score,
+        "consistency_penalty": consistency_penalty,
+        "confidence_class": confidence_class,
         "invariant_penalty": invariant_penalty,
         "wilson_penalty": wilson_penalty,
         "surface_penalty": surface_penalty,
@@ -47,7 +63,7 @@ def analyze_cases(roots: list[Path]) -> dict[str, object]:
     cases = [analyze_case(root) for root in roots]
     ranked = sorted(cases, key=lambda item: item["screening_score"])
     return {
-        "ranking_basis": "screening_score = invariant_penalty + wilson_penalty + surface_penalty",
+        "ranking_basis": "screening_score = invariant_penalty + wilson_penalty + surface_penalty + consistency_penalty",
         "cases": ranked,
         "best_case": ranked[0]["case"] if ranked else None,
         "observations": [

@@ -32,12 +32,21 @@ def analyze(path: Path) -> dict[str, object]:
         topology_class = "nontrivial-like"
     else:
         topology_class = "trivial-like"
+    evidence_score = 0.0
+    for key in nontrivial_keys:
+        if key.upper() == "CHERN":
+            evidence_score += 2.0
+        elif key.upper() == "Z2":
+            evidence_score += 1.0
+        else:
+            evidence_score += 0.5
     return {
         "path": str(path),
         "invariants": values,
         "nontrivial_keys": nontrivial_keys,
         "topology_class": topology_class,
         "nontrivial_count": len(nontrivial_keys),
+        "evidence_score": evidence_score,
         "observations": ["Compact invariant summary extracted from the provided dataset."],
     }
 

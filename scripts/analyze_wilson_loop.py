@@ -22,6 +22,7 @@ def analyze(path: Path) -> dict[str, object]:
         if (y0 - 0.5) == 0 or (y1 - 0.5) == 0 or (y0 - 0.5) * (y1 - 0.5) < 0:
             crossings += 1
     nontrivial_hint = abs(winding) >= 0.5 or crossings > 0
+    support_score = abs(winding) + 0.2 * crossings
     return {
         "path": str(path),
         "winding_span": winding,
@@ -29,6 +30,7 @@ def analyze(path: Path) -> dict[str, object]:
         "total_variation": total_variation,
         "crossing_count": crossings,
         "nontrivial_hint": nontrivial_hint,
+        "support_score": support_score,
         "max_value": max(value for _, value in rows),
         "min_value": min(value for _, value in rows),
         "observations": ["Wilson-loop winding span extracted from the sampled dataset."],

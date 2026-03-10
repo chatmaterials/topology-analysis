@@ -33,6 +33,7 @@ def render_markdown(invariant: dict[str, object] | None, wilson: dict[str, objec
         for key, value in invariant["invariants"].items():
             lines.append(f"- {key}: `{value}`")
         lines.append(f"- Topology class: `{invariant['topology_class']}`")
+        lines.append(f"- Invariant evidence score: `{invariant['evidence_score']:.2f}`")
         lines.append("")
     if wilson is not None:
         lines.extend(
@@ -41,6 +42,7 @@ def render_markdown(invariant: dict[str, object] | None, wilson: dict[str, objec
                 f"- Winding span: `{wilson['winding_span']:.4f}`",
                 f"- Winding direction: `{wilson['winding_direction']}`",
                 f"- Crossing count: `{wilson['crossing_count']}`",
+                f"- Wilson support score: `{wilson['support_score']:.4f}`",
                 f"- Min / max: `{wilson['min_value']:.4f}` / `{wilson['max_value']:.4f}`",
                 "",
             ]
@@ -52,7 +54,9 @@ def render_markdown(invariant: dict[str, object] | None, wilson: dict[str, objec
                 f"- Peak energy (eV): `{surface['peak_energy_eV']:.4f}`",
                 f"- Peak intensity: `{surface['peak_intensity']:.4f}`",
                 f"- Near-Fermi weight: `{surface['near_fermi_weight']:.4f}`",
+                f"- Near-Fermi fraction: `{surface['near_fermi_fraction']:.4f}`",
                 f"- Surface-state hint: `{surface['surface_state_hint']}`",
+                f"- Surface confidence score: `{surface['confidence_score']:.4f}`",
                 "",
             ]
         )

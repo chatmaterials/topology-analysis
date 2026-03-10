@@ -19,13 +19,17 @@ def analyze(path: Path) -> dict[str, object]:
     integrated = sum(intensity for _, intensity in rows)
     near_fermi = [(energy, intensity) for energy, intensity in rows if abs(energy) <= 0.1]
     near_fermi_weight = sum(intensity for _, intensity in near_fermi)
+    near_fermi_fraction = near_fermi_weight / integrated if integrated > 0 else 0.0
     surface_state_hint = near_fermi_weight > 0.0 and near_fermi_weight / integrated >= 0.2 if integrated > 0 else False
+    confidence_score = near_fermi_fraction * float(peak[1])
     return {
         "path": str(path),
         "peak_energy_eV": peak[0],
         "peak_intensity": peak[1],
         "integrated_intensity": integrated,
         "near_fermi_weight": near_fermi_weight,
+        "near_fermi_fraction": near_fermi_fraction,
+        "confidence_score": confidence_score,
         "surface_state_hint": surface_state_hint,
         "observations": ["Surface-spectrum peak summary extracted from the sampled dataset."],
     }
