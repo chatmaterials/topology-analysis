@@ -1,6 +1,6 @@
 ---
 name: "topology-analysis"
-description: "Use when the task is to analyze topological quantities from DFT or Wannier-based outputs, including compact topological invariant summaries, Wilson-loop winding summaries, surface-state or arc-spectrum summaries, and markdown reports from finished calculations."
+description: "Use when the task is to analyze topological quantities from DFT or Wannier-based outputs, including compact topological invariant summaries, Wilson-loop winding summaries, surface-state or arc-spectrum summaries, candidate ranking, and markdown reports from finished calculations."
 ---
 
 # Topology Analysis
@@ -12,6 +12,7 @@ Use this skill for topology-oriented post-processing rather than generic workflo
 - summarize a topological invariant result
 - inspect Wilson-loop winding output
 - summarize a surface-state or Fermi-arc spectrum
+- rank multiple topological candidates with a compact invariant-plus-support heuristic
 - write a compact topology-analysis report from existing results
 
 ## Use the bundled helpers
@@ -22,6 +23,8 @@ Use this skill for topology-oriented post-processing rather than generic workflo
   Summarize a Wilson-loop winding dataset.
 - `scripts/analyze_surface_spectrum.py`
   Summarize a surface-state or arc spectrum.
+- `scripts/compare_topology_candidates.py`
+  Rank multiple topological candidates from invariant, Wilson-loop, and surface-spectrum descriptors.
 - `scripts/export_topology_report.py`
   Export a markdown topology-analysis report.
 

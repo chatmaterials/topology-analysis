@@ -16,10 +16,17 @@ def analyze(path: Path) -> dict[str, object]:
     if not rows:
         raise SystemExit("Surface-spectrum file contains no data")
     peak = max(rows, key=lambda item: item[1])
+    integrated = sum(intensity for _, intensity in rows)
+    near_fermi = [(energy, intensity) for energy, intensity in rows if abs(energy) <= 0.1]
+    near_fermi_weight = sum(intensity for _, intensity in near_fermi)
+    surface_state_hint = near_fermi_weight > 0.0 and near_fermi_weight / integrated >= 0.2 if integrated > 0 else False
     return {
         "path": str(path),
         "peak_energy_eV": peak[0],
         "peak_intensity": peak[1],
+        "integrated_intensity": integrated,
+        "near_fermi_weight": near_fermi_weight,
+        "surface_state_hint": surface_state_hint,
         "observations": ["Surface-spectrum peak summary extracted from the sampled dataset."],
     }
 

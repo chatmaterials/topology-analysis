@@ -13,9 +13,31 @@ def analyze(path: Path) -> dict[str, object]:
         parts = line.split()
         if len(parts) >= 2:
             values[parts[0]] = parts[1]
+    nontrivial = {}
+    for key, value in values.items():
+        stripped = value.strip().lower()
+        if stripped in {"1", "true", "yes", "nontrivial"}:
+            nontrivial[key] = True
+            continue
+        try:
+            nontrivial[key] = abs(float(stripped)) > 1e-12
+        except ValueError:
+            nontrivial[key] = stripped not in {"0", "false", "no", "trivial"}
+    nontrivial_keys = [key for key, flag in nontrivial.items() if flag]
+    if any(key.upper() == "CHERN" and nontrivial.get(key, False) for key in values):
+        topology_class = "chern-like"
+    elif any(key.upper() == "Z2" and nontrivial.get(key, False) for key in values):
+        topology_class = "z2-nontrivial-like"
+    elif nontrivial_keys:
+        topology_class = "nontrivial-like"
+    else:
+        topology_class = "trivial-like"
     return {
         "path": str(path),
         "invariants": values,
+        "nontrivial_keys": nontrivial_keys,
+        "topology_class": topology_class,
+        "nontrivial_count": len(nontrivial_keys),
         "observations": ["Compact invariant summary extracted from the provided dataset."],
     }
 

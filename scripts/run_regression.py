@@ -29,10 +29,15 @@ def ensure(condition: bool, message: str) -> None:
 def main() -> None:
     invariant = run_json("scripts/analyze_topological_invariant.py", "fixtures/invariant/invariant.dat", "--json")
     ensure(invariant["invariants"]["Z2"] == "1", "topology-analysis should parse the Z2 invariant")
+    ensure(invariant["topology_class"] == "z2-nontrivial-like", "topology-analysis should classify the invariant fixture")
     wilson = run_json("scripts/analyze_wilson_loop.py", "fixtures/wilson/wilson_loop.dat", "--json")
     ensure(wilson["winding_span"] > 0.7, "topology-analysis should summarize the Wilson-loop winding span")
+    ensure(wilson["nontrivial_hint"], "topology-analysis should identify a nontrivial Wilson hint")
     surface = run_json("scripts/analyze_surface_spectrum.py", "fixtures/surface/surface_spectrum.dat", "--json")
     ensure(abs(surface["peak_energy_eV"] - 0.2) < 1e-6, "topology-analysis should identify the surface-spectrum peak")
+    ensure(surface["surface_state_hint"], "topology-analysis should identify near-Fermi surface weight")
+    ranked = run_json("scripts/compare_topology_candidates.py", "fixtures", "fixtures/candidates/trivial", "--json")
+    ensure(ranked["best_case"] == "fixtures", "topology-analysis should rank the nontrivial fixture ahead of the trivial candidate")
     temp_dir = Path(tempfile.mkdtemp(prefix="topology-analysis-report-"))
     try:
         report_path = Path(
@@ -51,6 +56,7 @@ def main() -> None:
         report_text = report_path.read_text()
         ensure("# Topology Analysis Report" in report_text, "topology report should have a heading")
         ensure("## Invariants" in report_text and "## Wilson Loop" in report_text and "## Surface Spectrum" in report_text, "topology report should include all sections")
+        ensure("## Screening Note" in report_text, "topology report should include a screening note")
     finally:
         shutil.rmtree(temp_dir)
     print("topology-analysis regression passed")
