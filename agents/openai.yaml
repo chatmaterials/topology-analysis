@@ -1,0 +1,5 @@
+interface:
+  display_name: "Topology Analysis"
+  short_description: "Analyze invariants, Wilson loops, and surfaces"
+  brand_color: "#7C3AED"
+  default_prompt: "Use $topology-analysis to analyze topological invariants, Wilson loops, or surface spectra from DFT-derived results."
