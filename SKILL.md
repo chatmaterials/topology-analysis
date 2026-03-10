@@ -1,6 +1,6 @@
 ---
 name: "topology-analysis"
-description: "Use when the task is to analyze topological quantities from DFT or Wannier-based outputs, including compact topological invariant summaries, Wilson-loop winding summaries, surface-state or arc-spectrum summaries, evidence consistency scoring, candidate ranking, and markdown reports from finished calculations."
+description: "Use when the task is to analyze topological quantities from DFT or Wannier-based outputs, including compact topological invariant summaries, Wilson-loop winding summaries, surface-state or arc-spectrum summaries, evidence consistency scoring, mode-specific candidate ranking, and markdown reports from finished calculations."
 ---
 
 # Topology Analysis
@@ -13,7 +13,7 @@ Use this skill for topology-oriented post-processing rather than generic workflo
 - inspect Wilson-loop winding output
 - summarize a surface-state or Fermi-arc spectrum
 - combine invariant, Wilson-loop, and surface evidence into a compact confidence-style screening view
-- rank multiple topological candidates with a compact invariant-plus-support heuristic
+- rank multiple topological candidates in balanced, bulk, or surface-focused modes
 - write a compact topology-analysis report from existing results
 
 ## Use the bundled helpers

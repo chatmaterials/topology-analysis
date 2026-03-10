@@ -19,7 +19,7 @@ def locate_required(root: Path, relative_paths: list[str]) -> Path:
     raise SystemExit(f"Could not locate any of {relative_paths} in {root}")
 
 
-def analyze_case(root: Path) -> dict[str, object]:
+def analyze_case(root: Path, mode: str) -> dict[str, object]:
     invariant = analyze_invariant(locate_required(root, ["invariant.dat", "invariant/invariant.dat"]))
     wilson = analyze_wilson(locate_required(root, ["wilson_loop.dat", "wilson/wilson_loop.dat"]))
     surface = analyze_surface(locate_required(root, ["surface_spectrum.dat", "surface/surface_spectrum.dat"]))
@@ -32,13 +32,19 @@ def analyze_case(root: Path) -> dict[str, object]:
         consistency_penalty = 0.5
     elif invariant["topology_class"] != "trivial-like" and not (wilson["nontrivial_hint"] or surface["surface_state_hint"]):
         consistency_penalty = 0.5
-    score = invariant_penalty + wilson_penalty + surface_penalty + consistency_penalty
+    if mode == "surface":
+        score = 0.5 * invariant_penalty + 0.5 * wilson_penalty + 2.0 * surface_penalty + consistency_penalty
+    elif mode == "bulk":
+        score = 2.0 * invariant_penalty + 1.5 * wilson_penalty + 0.5 * surface_penalty + 0.5 * consistency_penalty
+    else:
+        score = invariant_penalty + wilson_penalty + surface_penalty + consistency_penalty
     if evidence_score >= 2.5 and consistency_penalty == 0.0:
         confidence_class = "strong-evidence"
     elif evidence_score >= 1.0:
         confidence_class = "moderate-evidence"
     else:
         confidence_class = "weak-evidence"
+    evidence_consistency_index = evidence_score / (1.0 + consistency_penalty)
     return {
         "case": root.name,
         "path": str(root),
@@ -50,6 +56,7 @@ def analyze_case(root: Path) -> dict[str, object]:
         "near_fermi_fraction": surface["near_fermi_fraction"],
         "surface_state_hint": surface["surface_state_hint"],
         "evidence_score": evidence_score,
+        "evidence_consistency_index": evidence_consistency_index,
         "consistency_penalty": consistency_penalty,
         "confidence_class": confidence_class,
         "invariant_penalty": invariant_penalty,
@@ -59,11 +66,12 @@ def analyze_case(root: Path) -> dict[str, object]:
     }
 
 
-def analyze_cases(roots: list[Path]) -> dict[str, object]:
-    cases = [analyze_case(root) for root in roots]
+def analyze_cases(roots: list[Path], mode: str) -> dict[str, object]:
+    cases = [analyze_case(root, mode) for root in roots]
     ranked = sorted(cases, key=lambda item: item["screening_score"])
     return {
-        "ranking_basis": "screening_score = invariant_penalty + wilson_penalty + surface_penalty + consistency_penalty",
+        "mode": mode,
+        "ranking_basis": "screening_score = weighted(invariant_penalty, wilson_penalty, surface_penalty, consistency_penalty)",
         "cases": ranked,
         "best_case": ranked[0]["case"] if ranked else None,
         "observations": [
@@ -75,9 +83,10 @@ def analyze_cases(roots: list[Path]) -> dict[str, object]:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Rank topological candidates with a compact invariant-plus-support heuristic.")
     parser.add_argument("paths", nargs="+")
+    parser.add_argument("--mode", choices=["balanced", "bulk", "surface"], default="balanced")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
-    payload = analyze_cases([Path(path).expanduser().resolve() for path in args.paths])
+    payload = analyze_cases([Path(path).expanduser().resolve() for path in args.paths], args.mode)
     if args.json:
         print(json.dumps(payload, indent=2))
         return

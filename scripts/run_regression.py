@@ -39,9 +39,13 @@ def main() -> None:
     ensure(abs(surface["peak_energy_eV"] - 0.2) < 1e-6, "topology-analysis should identify the surface-spectrum peak")
     ensure(surface["surface_state_hint"], "topology-analysis should identify near-Fermi surface weight")
     ensure(surface["confidence_score"] > 0.4, "topology-analysis should compute a surface confidence score")
-    ranked = run_json("scripts/compare_topology_candidates.py", "fixtures", "fixtures/candidates/ambiguous", "fixtures/candidates/trivial", "--json")
+    ranked = run_json("scripts/compare_topology_candidates.py", "fixtures", "fixtures/candidates/ambiguous", "fixtures/candidates/trivial", "--mode", "balanced", "--json")
     ensure(ranked["best_case"] == "fixtures", "topology-analysis should rank the nontrivial fixture ahead of the trivial candidate")
     ensure(ranked["cases"][1]["case"] == "ambiguous", "topology-analysis should place the ambiguous candidate between the nontrivial and trivial cases")
+    surface_ranked = run_json("scripts/compare_topology_candidates.py", "fixtures", "fixtures/candidates/ambiguous", "fixtures/candidates/trivial", "--mode", "surface", "--json")
+    ensure(surface_ranked["best_case"] == "fixtures", "topology-analysis should still keep the strongest surface-backed candidate on top in surface mode")
+    bulk_ranked = run_json("scripts/compare_topology_candidates.py", "fixtures", "fixtures/candidates/ambiguous", "fixtures/candidates/trivial", "--mode", "bulk", "--json")
+    ensure(bulk_ranked["best_case"] == "fixtures", "topology-analysis should keep the bulk-evidenced candidate on top in bulk mode")
     temp_dir = Path(tempfile.mkdtemp(prefix="topology-analysis-report-"))
     try:
         report_path = Path(
