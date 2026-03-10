@@ -1,5 +1,7 @@
 # topology-analysis
 
+[![CI](https://img.shields.io/github/actions/workflow/status/chatmaterials/topology-analysis/ci.yml?branch=main&label=CI)](https://github.com/chatmaterials/topology-analysis/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/chatmaterials/topology-analysis?display_name=tag)](https://github.com/chatmaterials/topology-analysis/releases)
+
 Standalone skill for topological-material post-processing and report generation.
 
 ## Install
